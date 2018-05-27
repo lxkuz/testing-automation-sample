@@ -4,9 +4,6 @@ Rails.application.routes.routes.to_a.select{|route| route.path.spec.to_s.match(/
   # skip redirect routes, assets
   next unless route.defaults[:controller]
 
-  # skip devise routes
-  next if route.defaults[:controller]['devise']
-
   controller = begin
     "#{route.defaults[:controller]}_controller".camelize.constantize
   rescue
@@ -38,6 +35,22 @@ Rails.application.routes.routes.to_a.select{|route| route.path.spec.to_s.match(/
             is_expected.to redirect_to(admin_login_path)
           end
         end
+
+        user = User.create
+        # ability =  Ability.new(user)
+
+        # unless ability.can?(action, controller.name.singularize.camelize.constantize)
+        context 'authorized user without any permissions' do
+          before(:each) do
+            byebug
+            sign_in(user)
+          end
+
+          it 'redirects to admin sign in' do
+            is_expected.to redirect_to(admin_login_path)
+          end
+        end
+        # end
       end
     end
   end
